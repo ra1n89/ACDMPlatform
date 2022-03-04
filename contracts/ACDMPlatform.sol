@@ -2,18 +2,21 @@
 pragma solidity ^0.8.0;
 
 import "hardhat/console.sol";
+import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "./Token.sol";
 
-contract ACDMPlatform {
+contract ACDMPlatform is ReentrancyGuard {
     Token public token;
+
     uint256 private roundTime;
     uint256 private id = 0;
     uint256 public supply = 100000 * (10**18);
     uint256 public volumeETH = 1;
     uint256 public price;
-    // uint256 public tokenBalance = token.balanceOf(address(this));
+
     mapping(address => address) public referals;
     mapping(uint256 => Round) public rounds;
+
     Order[] public orders;
 
     struct Round {
@@ -26,7 +29,7 @@ contract ACDMPlatform {
 
     struct Order {
         uint256 amount;
-        uint256 tokenPrice; // eth
+        uint256 tokenPrice;
         address account;
         bool isOpen;
     }
@@ -90,7 +93,6 @@ contract ACDMPlatform {
         currentRound.isSaleOrTradeRound = false;
     }
 
-    //2 раунд пользователи которые купили в 1 раунде теперь могут продавать в трейдраунде (длится некоторый период)
     function setOrder(uint256 _amount, uint256 _tokenPrice) public {
         require(
             rounds[id].isSaleOrTradeRound == false,
@@ -108,11 +110,23 @@ contract ACDMPlatform {
         );
     }
 
-    function buyOrder(uint256 _idOrder) public payable {
+    function cancelOrder(uint256 _orderId) public {
+        Order storage order = orders[_orderId];
+        require(order.account == msg.sender, "It's not your order");
+        require(order.isOpen, "Order canceled yet");
+
+        token.transfer(order.account, order.amount);
+        order.amount = 0;
+        order.isOpen = false;
+    }
+
+    function buyOrder(uint256 _idOrder) public payable nonReentrant {
+        Round storage round = rounds[id];
         require(
-            rounds[id].isSaleOrTradeRound == false,
+            round.isSaleOrTradeRound == false,
             "Wait the sail round will end"
         );
+        require(round.endTime >= block.timestamp, "Trade round is over");
         Order storage order = orders[_idOrder];
         token.transfer(msg.sender, order.amount);
     }
