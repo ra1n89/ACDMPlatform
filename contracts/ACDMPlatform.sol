@@ -13,6 +13,7 @@ contract ACDMPlatform is ReentrancyGuard {
     uint256 public supply = 100000 * (10**18);
     uint256 public volumeETH = 1;
     uint256 public price;
+    uint256 public refBonusPercent = 5;
 
     mapping(address => address) public referals;
     mapping(uint256 => Round) public rounds;
@@ -51,8 +52,9 @@ contract ACDMPlatform is ReentrancyGuard {
         token.mint(address(this), supply);
     }
 
-    function buy(uint256 _amount) public payable {
+    function buy(uint256 _amount) public payable nonReentrant {
         uint256 tokenBalance = token.balanceOf(address(this));
+        uint256 refBonus = (refBonusPercent * msg.value) / 100;
         address _buyer = msg.sender;
         Round storage currentRound = rounds[id];
         uint256 etherSumm = currentRound.tokenPrice * _amount;
@@ -61,6 +63,9 @@ contract ACDMPlatform is ReentrancyGuard {
         require(currentRound.endTime >= block.timestamp, "Sale round is over");
         //проверка суммы Eth для покупки токена
         require(msg.value >= etherSumm, "Summ of ethers is not enought");
+        //отправляем реффералу бонус
+        withdraw(referals[msg.sender], refBonus);
+        //отправляем поокупателю токены
         token.transfer(_buyer, _amount);
     }
 
@@ -129,5 +134,10 @@ contract ACDMPlatform is ReentrancyGuard {
         require(round.endTime >= block.timestamp, "Trade round is over");
         Order storage order = orders[_idOrder];
         token.transfer(msg.sender, order.amount);
+    }
+
+    function withdraw(address _to, uint256 _amount) private {
+        (bool success, ) = _to.call{value: _amount}("");
+        require(success, "Failed to send Ether");
     }
 }

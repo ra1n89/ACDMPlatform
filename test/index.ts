@@ -81,6 +81,41 @@ describe("ACDMPlatform", function () {
     console.log(await token.balanceOf(acdmPlatform.address));
   });
 
+  it("cancelOrder", async () => {
+    const ethToPay = ethers.utils.parseEther("0.001");
+    const _amount = 100;
+    const _tokenPrice = 1;
+    await acdmPlatform.startSaleRound();
+    await acdmPlatform.buy(100, { value: ethToPay });
+    await acdmPlatform.startTradeRound();
+    await token.approve(acdmPlatform.address, _amount);
+    await acdmPlatform.setOrder(100, 1);
+    console.log(await token.balanceOf(acdmPlatform.address));
+    await acdmPlatform.cancelOrder(0);
+    console.log(await token.balanceOf(acdmPlatform.address));
+  });
+
+  it("check refBonus come to referal", async () => {
+    const ethToPay = ethers.utils.parseEther("0.001");
+    const _amount = 100;
+    const _tokenPrice = 1;
+    await acdmPlatform.register(alice.address);
+    await acdmPlatform.startSaleRound();
+    console.log(await alice.getBalance());
+    await acdmPlatform.buy(100, { value: ethToPay });
+    console.log(await alice.getBalance());
+    // await acdmPlatform.startTradeRound();
+    // await token.approve(acdmPlatform.address, _amount);
+    // await acdmPlatform.setOrder(100, 1);
+    // console.log(await token.balanceOf(acdmPlatform.address));
+    // await acdmPlatform.cancelOrder(0);
+    // console.log(await token.balanceOf(acdmPlatform.address));
+  });
+
+
+
+
+
 
 
 })
