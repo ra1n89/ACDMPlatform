@@ -28,17 +28,24 @@ describe("ACDMPlatform", function () {
     await acdmPlatform.deployed();
   })
 
-  // it("TransferFrom should emit event", async () => {
-  //   await acdmPlatform.startSaleRound();
-  //   console.log(await token.balanceOf(acdmPlatform.address));
-  // });
-
-  it("buy", async () => {
-    const ethToPay = ethers.utils.parseEther("0.001");
+  it("startSaleRound: should mint tokens for first round", async () => {
+    const supply = ethers.utils.parseEther("100000")
     await acdmPlatform.startSaleRound();
-    await acdmPlatform.buy(100, { value: ethToPay });
-    console.log(await token.balanceOf(acdmPlatform.address));
+    expect(await token.balanceOf(acdmPlatform.address)).to.be.equal(supply);
   });
+
+  // it("buy: should send token to buyer", async () => {
+  //   const supply1 = 100000;
+  //   const supply = ethers.utils.parseEther(`${supply1}`);
+  //   const _amount1 = 100;
+  //   const tokenPrice1 = 0.00001;
+  //   const ethToPay1 = _amount1 * tokenPrice1;
+  //   const ethToPay = ethers.utils.parseEther(`${ethToPay1}`);
+  //   await acdmPlatform.startSaleRound();
+  //   await acdmPlatform.buy(_amount1, { value: ethToPay });
+  //   const diff = supply1 - 
+  //   expect(await token.balanceOf(acdmPlatform.address)).to.be.equal();
+  // });
 
   it("startTradeRound", async () => {
     const ethToPay = ethers.utils.parseEther("0.001");
