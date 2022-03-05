@@ -12,8 +12,9 @@ contract ACDMPlatform is ReentrancyGuard {
     uint256 private id = 0;
     uint256 public supply = 100000 * (10**18);
     uint256 public volumeETH = 1;
-    uint256 public price;
+    uint256 public price = (volumeETH * 10**18) / (supply / 10**18);
     uint256 public refBonusPercent = 5;
+    uint256 public priceMultiplicator = 3; //1,03
 
     mapping(address => address) public referals;
     mapping(uint256 => Round) public rounds;
@@ -71,7 +72,7 @@ contract ACDMPlatform is ReentrancyGuard {
 
     function registerRound() internal {
         //расчёт цены за 1 токен в weigh
-        price = (volumeETH * 10**18) / (supply / 10**18);
+        console.log(price);
         rounds[id] = Round({
             roundID: id,
             tokenPrice: price,
@@ -79,14 +80,18 @@ contract ACDMPlatform is ReentrancyGuard {
             endTime: block.timestamp + roundTime,
             isSaleOrTradeRound: true
         });
+        price = price + (price * priceMultiplicator) / 100 + 0.000004 ether;
+        console.log(price);
+        // обнуляем для дальнейших расчётов в buyOrder()
+        volumeETH = 0;
     }
 
     function startTradeRound() public payable {
         uint256 tokenBalance = token.balanceOf(address(this));
         if (tokenBalance != 0) {
             require(
-                rounds[id].endTime >= block.timestamp,
-                "Sale round is over"
+                rounds[id].endTime <= block.timestamp,
+                "Sale round isn't over"
             );
         }
         if (tokenBalance > 0) {
@@ -134,6 +139,7 @@ contract ACDMPlatform is ReentrancyGuard {
         require(round.endTime >= block.timestamp, "Trade round is over");
         Order storage order = orders[_idOrder];
         token.transfer(msg.sender, order.amount);
+        volumeETH += msg.value;
     }
 
     function withdraw(address _to, uint256 _amount) private {
