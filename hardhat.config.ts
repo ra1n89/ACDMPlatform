@@ -19,13 +19,12 @@ task("accounts", "Prints the list of accounts", async (taskArgs, hre) => {
   }
 });
 
-task("vote", "vote for proposal")
+task("buy", "buy token")
   .addParam("address", "The contract address on Rinkeby")
-  .addParam("id", "id")
-  .addParam("support", "Support proposal or against (true or false)")
+  .addParam("amount", "amount tokens to buy")
   .setAction(async (taskArgs, hre) => {
-    const contract = await hre.ethers.getContractAt("DAO", taskArgs.address)
-    await contract.vote(taskArgs.id, taskArgs.support);
+    const contract = await hre.ethers.getContractAt("ACDMPlatform", taskArgs.address)
+    await contract.buy(taskArgs.amount);
   });
 
 // You need to export an object to set up your config
