@@ -11,8 +11,8 @@ contract ACDMPlatform is ReentrancyGuard {
     uint256 private roundTime;
     uint256 private id = 0;
     uint256 public supply = 100000 * (10**18);
-    uint256 public volumeETH = 1;
-    uint256 public price = (volumeETH * 10**18) / (supply / 10**18);
+    uint256 public volumeETH = 1 ether;
+    uint256 public price = volumeETH / (supply / 10**18);
     uint256 public refBonusPercent = 5;
     uint256 public priceMultiplicator = 3; //1,03
 
@@ -50,7 +50,16 @@ contract ACDMPlatform is ReentrancyGuard {
     function startSaleRound() public {
         id++;
         registerRound();
+        Round storage round = rounds[id];
+        uint256 mintAmount = (volumeETH) / round.tokenPrice;
+        console.log(volumeETH);
+        console.log(round.tokenPrice);
+        console.log(mintAmount);
         token.mint(address(this), supply);
+        // обнуляем для дальнейших расчётов в buyOrder()
+        volumeETH = 0;
+        // переоценка цены токена для других раундов
+        price = price + (price * priceMultiplicator) / 100 + 0.000004 ether;
     }
 
     function buy(uint256 _amount) public payable nonReentrant {
@@ -72,7 +81,7 @@ contract ACDMPlatform is ReentrancyGuard {
 
     function registerRound() internal {
         //расчёт цены за 1 токен в weigh
-        console.log(price);
+        // console.log(price);
         rounds[id] = Round({
             roundID: id,
             tokenPrice: price,
@@ -80,10 +89,6 @@ contract ACDMPlatform is ReentrancyGuard {
             endTime: block.timestamp + roundTime,
             isSaleOrTradeRound: true
         });
-        price = price + (price * priceMultiplicator) / 100 + 0.000004 ether;
-        console.log(price);
-        // обнуляем для дальнейших расчётов в buyOrder()
-        volumeETH = 0;
     }
 
     function startTradeRound() public payable {
@@ -137,6 +142,7 @@ contract ACDMPlatform is ReentrancyGuard {
             "Wait the sail round will end"
         );
         require(round.endTime >= block.timestamp, "Trade round is over");
+        //require что достаточно eth !!!!!!!!!!!!!!!!!!!!
         Order storage order = orders[_idOrder];
         token.transfer(msg.sender, order.amount);
         volumeETH += msg.value;

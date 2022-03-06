@@ -165,17 +165,33 @@ describe("ACDMPlatform", function () {
 
     await acdmPlatform.startTradeRound();
 
+    await token.approve(acdmPlatform.address, _amount);
+    await acdmPlatform.setOrder(100, 10000000000000);
+    await acdmPlatform.buyOrder(0, { value: 1000000000000000 });
+
     await network.provider.send("evm_increaseTime", [roundTime]);
     await network.provider.send("evm_mine");
 
+
     await acdmPlatform.startSaleRound();
 
-    // await acdmPlatform.startTradeRound();
-    // await token.approve(acdmPlatform.address, _amount);
-    // await acdmPlatform.setOrder(100, 1);
-    // console.log(await token.balanceOf(acdmPlatform.address));
-    // await acdmPlatform.cancelOrder(0);
-    // console.log(await token.balanceOf(acdmPlatform.address));
+    await network.provider.send("evm_increaseTime", [roundTime]);
+    await network.provider.send("evm_mine");
+
+    await acdmPlatform.startTradeRound();
+
+    await token.approve(acdmPlatform.address, _amount);
+    await acdmPlatform.setOrder(100, 10000000000000);
+    await acdmPlatform.buyOrder(0, { value: 1000000000000000 });
+
+    await network.provider.send("evm_increaseTime", [roundTime]);
+    await network.provider.send("evm_mine");
+
+
+    await acdmPlatform.startSaleRound();
+
+
+
   });
 
 
