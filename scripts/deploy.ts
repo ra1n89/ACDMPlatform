@@ -18,7 +18,7 @@ async function main() {
   const token = await Token.deploy();
   await token.deployed();
 
-  const roundTime = 3 * 60 * 60;
+  const roundTime = 3 * 24 * 60 * 60;
   const ACDMPlatform = await ethers.getContractFactory("ACDMPlatform");
   const acdmPlatform = await ACDMPlatform.deploy(token.address, roundTime);
   await acdmPlatform.deployed();
