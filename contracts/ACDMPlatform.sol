@@ -46,15 +46,20 @@ contract ACDMPlatform is ReentrancyGuard {
         referals[msg.sender] = referrer;
     }
 
-    //1 раунд одна цена, первоначальная эмиссия (длится некоторый период)
     function startSaleRound() public {
+        //возвращаем токены по невыполненным ордерам обратно участникам
+        if (id > 0) {
+            for (uint256 i = 0; i > orders.length; i++) {
+                token.transfer(orders[i].account, orders[i].amount);
+            }
+        }
         id++;
         registerRound();
         Round storage round = rounds[id];
         uint256 mintAmount = (volumeETH) / round.tokenPrice;
-        console.log(volumeETH);
-        console.log(round.tokenPrice);
-        console.log(mintAmount);
+        // console.log(volumeETH);
+        // console.log(round.tokenPrice);
+        // console.log(mintAmount);
         token.mint(address(this), supply);
         // обнуляем для дальнейших расчётов в buyOrder()
         volumeETH = 0;
@@ -80,7 +85,6 @@ contract ACDMPlatform is ReentrancyGuard {
     }
 
     function registerRound() internal {
-        //расчёт цены за 1 токен в weigh
         // console.log(price);
         rounds[id] = Round({
             roundID: id,
@@ -142,9 +146,17 @@ contract ACDMPlatform is ReentrancyGuard {
             "Wait the sail round will end"
         );
         require(round.endTime >= block.timestamp, "Trade round is over");
-        //require что достаточно eth !!!!!!!!!!!!!!!!!!!!
+
         Order storage order = orders[_idOrder];
-        token.transfer(msg.sender, order.amount);
+        //считаем количество оплаченных токенов ордера
+        uint256 amountPayedTokens = (msg.value / order.tokenPrice);
+        // console.log(msg.value);
+        // console.log(order.tokenPrice);
+        // console.log(amountPayedTokens);
+
+        token.transfer(msg.sender, amountPayedTokens);
+        //записываем остаток токенов в ордер
+        order.amount -= amountPayedTokens;
         volumeETH += msg.value;
     }
 

@@ -182,13 +182,13 @@ describe("ACDMPlatform", function () {
 
     await token.approve(acdmPlatform.address, _amount);
     await acdmPlatform.setOrder(100, 10000000000000);
-    await acdmPlatform.buyOrder(0, { value: 1000000000000000 });
+    await acdmPlatform.buyOrder(1, { value: 1000000000000000 });
 
-    await network.provider.send("evm_increaseTime", [roundTime]);
-    await network.provider.send("evm_mine");
+    // await network.provider.send("evm_increaseTime", [roundTime]);
+    // await network.provider.send("evm_mine");
 
 
-    await acdmPlatform.startSaleRound();
+    // await acdmPlatform.startSaleRound();
 
 
 
