@@ -49,7 +49,7 @@ contract ACDMPlatform is ReentrancyGuard {
     function startSaleRound() public {
         //возвращаем токены по невыполненным ордерам обратно участникам
         if (id > 0) {
-            for (uint256 i = 0; i > orders.length; i++) {
+            for (uint256 i = 0; i < orders.length; i++) {
                 token.transfer(orders[i].account, orders[i].amount);
             }
         }
@@ -57,9 +57,6 @@ contract ACDMPlatform is ReentrancyGuard {
         registerRound();
         Round storage round = rounds[id];
         uint256 mintAmount = (volumeETH) / round.tokenPrice;
-        // console.log(volumeETH);
-        // console.log(round.tokenPrice);
-        // console.log(mintAmount);
         token.mint(address(this), supply);
         // обнуляем для дальнейших расчётов в buyOrder()
         volumeETH = 0;
@@ -85,7 +82,6 @@ contract ACDMPlatform is ReentrancyGuard {
     }
 
     function registerRound() internal {
-        // console.log(price);
         rounds[id] = Round({
             roundID: id,
             tokenPrice: price,
@@ -132,7 +128,7 @@ contract ACDMPlatform is ReentrancyGuard {
     function cancelOrder(uint256 _orderId) public {
         Order storage order = orders[_orderId];
         require(order.account == msg.sender, "It's not your order");
-        require(order.isOpen, "Order canceled yet");
+        require(order.isOpen, "Order canceled already");
 
         token.transfer(order.account, order.amount);
         order.amount = 0;
@@ -150,9 +146,6 @@ contract ACDMPlatform is ReentrancyGuard {
         Order storage order = orders[_idOrder];
         //считаем количество оплаченных токенов ордера
         uint256 amountPayedTokens = (msg.value / order.tokenPrice);
-        // console.log(msg.value);
-        // console.log(order.tokenPrice);
-        // console.log(amountPayedTokens);
 
         token.transfer(msg.sender, amountPayedTokens);
         //записываем остаток токенов в ордер
