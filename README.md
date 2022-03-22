@@ -1,8 +1,8 @@
-### ERC20Token Marketplace
+# ERC20Token Marketplace
 
 This project implements ERC20Token Marketplace, which allows users to buy tokens from marketplace on Sale round by fixed price, and then trade them on the next Trade round
 
-# Basic meanings:
+### Basic meanings:
 
 Sale round - users can buy tokens from marketplace on Sale round by fixed price. With each new round price grows up (it's counted by formula)
 
@@ -12,7 +12,7 @@ Verified contract:
 https://rinkeby.etherscan.io/address/0x06e49034b4488edD6A156633Ea9224e468E66907#code
 
 Create a .env file using this template
-
+```
 ETHERSCAN_API_KEY  
 BSCSCAN_API_KEY  
 RINKEBY_URL  
@@ -21,5 +21,5 @@ PRIVATE_KEY
 ALCHEMY_API_KEY  
 ALCHEMY_API_KEY_ROPSTEN  
 PRIVATE_KEY_BSC  
-
+```
 
