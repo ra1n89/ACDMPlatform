@@ -1,10 +1,14 @@
 //SPDX-License-Identifier: Unlicense
 pragma solidity ^0.8.0;
 
-import "hardhat/console.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "./Token.sol";
 
+/** @title ERC20 Token marketplace
+ * @dev users can buy token on sale round and then sell and buy tokens on trade round
+ * @author Rishat Akhmetzyanov
+ * @notice not for using in real projects beacause it's not audited
+ */
 contract ACDMPlatform is ReentrancyGuard {
     Token public token;
 
@@ -41,13 +45,14 @@ contract ACDMPlatform is ReentrancyGuard {
         token = Token(_acdmToken);
     }
 
-    //реферальная программа
+    /// @dev referal program registering
     function register(address referrer) public {
         referals[msg.sender] = referrer;
     }
 
+    /// @dev start sale round during which users can only buy tokens from the Token Marketplace
     function startSaleRound() public {
-        //возвращаем токены по невыполненным ордерам обратно участникам
+        // if it's not first round, we cancel all open orders from trade  round
         if (id > 0) {
             for (uint256 i = 0; i < orders.length; i++) {
                 token.transfer(orders[i].account, orders[i].amount);
@@ -58,12 +63,13 @@ contract ACDMPlatform is ReentrancyGuard {
         Round storage round = rounds[id];
         uint256 mintAmount = (volumeETH) / round.tokenPrice;
         token.mint(address(this), supply);
-        // обнуляем для дальнейших расчётов в buyOrder()
+        // reset to zero for further calculations in buyOrder()
         volumeETH = 0;
-        // переоценка цены токена для других раундов
+        // calculating token price for following rounds
         price = price + (price * priceMultiplicator) / 100 + 0.000004 ether;
     }
 
+    /// @dev buying tokens during sale round
     function buy(uint256 _amount) public payable nonReentrant {
         uint256 tokenBalance = token.balanceOf(address(this));
         uint256 refBonus = (refBonusPercent * msg.value) / 100;
@@ -73,11 +79,11 @@ contract ACDMPlatform is ReentrancyGuard {
         require(_amount < tokenBalance, "tokens balance is not enought");
         require(currentRound.isSaleOrTradeRound == true, "round is not active");
         require(currentRound.endTime >= block.timestamp, "Sale round is over");
-        //проверка суммы Eth для покупки токена
+        //check summ of Eth for buying tokens
         require(msg.value >= etherSumm, "Summ of ethers is not enought");
-        //отправляем реффералу бонус
+        //sendind bonus to reffer
         withdraw(referals[msg.sender], refBonus);
-        //отправляем поокупателю токены
+        //sending token to buyer
         token.transfer(_buyer, _amount);
     }
 
@@ -91,6 +97,7 @@ contract ACDMPlatform is ReentrancyGuard {
         });
     }
 
+    /// @dev start trade round during wich users can sell and buy token between each other
     function startTradeRound() public payable {
         uint256 tokenBalance = token.balanceOf(address(this));
         if (tokenBalance != 0) {
@@ -144,11 +151,11 @@ contract ACDMPlatform is ReentrancyGuard {
         require(round.endTime >= block.timestamp, "Trade round is over");
 
         Order storage order = orders[_idOrder];
-        //считаем количество оплаченных токенов ордера
+        //counting amount of tokens which were paid
         uint256 amountPayedTokens = (msg.value / order.tokenPrice);
 
         token.transfer(msg.sender, amountPayedTokens);
-        //записываем остаток токенов в ордер
+        //saving left tokens
         order.amount -= amountPayedTokens;
         volumeETH += msg.value;
     }

@@ -146,30 +146,6 @@ describe("ACDMPlatform", function () {
     expect(await token.balanceOf(acdmPlatform.address)).to.be.equal(0);
   });
 
-
-  // it("buyOrder: should transfer ethers from buyer to contract", async () => {
-  //   const ethToPay = ethers.utils.parseEther("0.001");
-  //   const roundTime = 3 * 24 * 60 * 60;
-  //   const _amount = 100;
-  //   const _tokenPrice = ethers.utils.parseEther("1");
-  //   const ethToPayTradeRound1 = _tokenPrice.mul(_amount);
-  //   const ethToPayTradeRound = (`${ethToPayTradeRound1}`);
-  //   // record balance before any action
-  //   const ethBalanceBefore = await bob.getBalance();
-  //   await acdmPlatform.startSaleRound();
-  //   await acdmPlatform.buy(_amount, { value: ethToPay });
-  //   await network.provider.send("evm_increaseTime", [roundTime]);
-  //   await network.provider.send("evm_mine");
-  //   await acdmPlatform.startTradeRound();
-  //   await token.approve(acdmPlatform.address, _amount);
-  //   await acdmPlatform.setOrder(_amount, _tokenPrice);
-  //   const sentTx = await acdmPlatform.buyOrder(0, { value: ethToPayTradeRound });
-  //   const minedTx = await sentTx.wait();
-  //   const fee = minedTx.effectiveGasPrice.mul(minedTx.cumulativeGasUsed);
-  //   const ethBalanceAfter = await bob.getBalance();
-  //   expect(ethBalanceAfter).to.be.equal(ethBalanceBefore.sub(ethToPayTradeRound).sub(fee));
-  // });
-
   it("cancelOrder: should revert if caller isn't an owner of order", async () => {
     const ethToPay = ethers.utils.parseEther("0.001");
     const roundTime = 3 * 24 * 60 * 60;
@@ -220,24 +196,6 @@ describe("ACDMPlatform", function () {
     await acdmPlatform.cancelOrder(0);
     expect(await token.balanceOf(acdmPlatform.address)).to.be.equal(0);
   });
-
-  // it("Should give refBonus to refer", async () => {
-  //   const ethToPay1 = ethers.utils.parseEther("0.001");
-  //   const refBonusPercent = 5;
-  //   const _amount = 100;
-  //   const ethToPay = ethToPay1.mul(_amount);
-  //   const refBonus = ethToPay.mul(refBonusPercent).div(100);
-  //   const ethBalanceBefore = await alice.getBalance();
-  //   await acdmPlatform.register(alice.address);
-  //   await acdmPlatform.startSaleRound();
-  //   console.log("refbonus", refBonus);
-  //   const sentTx = await acdmPlatform.buy(_amount, { value: ethToPay });
-  //   const minedTx = await sentTx.wait();
-  //   const fee = minedTx.effectiveGasPrice.mul(minedTx.cumulativeGasUsed);
-  //   const ethBalanceAfter = await alice.getBalance();
-  //   expect(ethBalanceAfter).to.be.equal(ethBalanceBefore.sub(refBonus).sub(fee));
-  // });
-
 
   it("startTradeRound: should cancel all orders and give back tokens for sellers", async () => {
     const ethToPay = ethers.utils.parseEther("0.001");

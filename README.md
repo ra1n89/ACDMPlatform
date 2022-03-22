@@ -1,15 +1,14 @@
-Площадка для продажи ACDM 
+### ERC20Token Marketplace
 
+This project implements ERC20Token Marketplace, which allows users to buy tokens from marketplace on Sale round by fixed price, and then trade them on the next Trade round
 
-Есть 2 раунда «Торговля» и «Продажа», которые следуют друг за другом, начиная с раунда 
-продажи.Каждый раунд длится 3 дня.
+Basic meanings:
 
-Основные понятия:
-Раунд «Sale» - В данном раунде пользователь может купить токены ACDM по фиксируемой цене 
-у платформы за ETH.
-Раунд «Trade» - в данном раунде пользователи могут выкупать друг у друга токены ACDM за ETH.
+Sale round - users can buy tokens from marketplace on Sale round by fixed price. With each new round price grows up (it's counted by formula)
 
-Контракт:
+Trade round - users who have tokens can place orders with any price and other users can buy whole amount of token in order or just a part
+
+Verified contract:
 https://rinkeby.etherscan.io/address/0x06e49034b4488edD6A156633Ea9224e468E66907#code
 
 
