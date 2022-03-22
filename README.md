@@ -22,4 +22,4 @@ ALCHEMY_API_KEY
 ALCHEMY_API_KEY_ROPSTEN  
 PRIVATE_KEY_BSC  
 ```
-
+P.S. not for using in real projects beacause it's not audited
